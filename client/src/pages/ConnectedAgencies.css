@@ -1,0 +1,56 @@
+﻿/* Connected Agencies - Fixed Layout */
+.connected-agencies-page { min-height:100vh; background:#F1F5F9; }
+.page-content { padding:2rem; }
+
+.agencies-grid { display:flex; flex-direction:column; gap:1.25rem; margin-bottom:2.5rem; max-width:900px; margin-left:auto; margin-right:auto; }
+
+.agency-card {
+  display:grid; grid-template-columns:180px 1fr;
+  background:#fff; border-radius:20px; overflow:hidden;
+  box-shadow:0 2px 12px rgba(0,0,0,0.07); border:1px solid #E2E8F0;
+  transition:all 0.25s ease; min-height:160px;
+}
+.agency-card:hover { transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,0.12); }
+
+.agency-header {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:0.875rem; padding:1.75rem 1.25rem; color:#fff;
+  position:relative; overflow:hidden;
+}
+.agency-header::before { content:''; position:absolute; top:-30%; right:-30%; width:100px; height:100px; background:rgba(255,255,255,0.1); border-radius:50%; }
+.agency-header h2 { font-family:'Poppins',sans-serif; font-size:1rem; font-weight:800; color:#fff !important; margin:0; text-align:center; position:relative; z-index:1; }
+.agency-header p  { display:none; }
+
+.agency-icon { width:60px; height:60px; background:rgba(255,255,255,0.2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; border:2px solid rgba(255,255,255,0.3); color:#fff; position:relative; z-index:1; transition:transform 0.25s ease; }
+.agency-card:hover .agency-icon { transform:scale(1.1) rotate(-8deg); }
+
+.hotline-num { font-family:'Poppins',sans-serif; font-size:1.75rem; font-weight:900; color:#fff; line-height:1; position:relative; z-index:1; }
+.hotline-lbl { font-size:0.6rem; color:rgba(255,255,255,0.65); font-weight:700; text-transform:uppercase; letter-spacing:1.5px; position:relative; z-index:1; }
+
+.agency-body { padding:1.5rem 2rem; display:flex; flex-direction:column; justify-content:center; gap:0.625rem; }
+.agency-body h3 { font-family:'Poppins',sans-serif; font-size:1rem; font-weight:800; color:#0F172A; margin:0; }
+.agency-body > p { font-size:0.82rem; color:#64748B; margin:0; line-height:1.5; }
+.agency-body .agency-body-label { font-size:0.68rem; font-weight:700; color:#94A3B8; text-transform:uppercase; letter-spacing:0.8px; }
+
+.services-list { list-style:none; padding:0; margin:0; display:flex; flex-wrap:wrap; gap:0.4rem; }
+.services-list li { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.75rem; color:#1D4ED8; background:#EFF6FF; border:1px solid #BFDBFE; padding:0.2rem 0.65rem; border-radius:999px; font-weight:600; }
+.services-list i { color:#22C55E; font-size:0.6rem; }
+
+.agency-contact { display:flex; gap:1.5rem; flex-wrap:wrap; }
+.contact-item { display:flex; align-items:center; gap:0.4rem; font-size:0.78rem; color:#64748B; }
+.contact-item i { color:#3B82F6; font-size:0.8rem; }
+
+.info-section { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; max-width:900px; margin:0 auto; }
+.info-card { background:#fff; padding:1.5rem; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); text-align:center; border:1px solid #E2E8F0; transition:all 0.25s ease; }
+.info-card:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.1); }
+.info-card i { font-size:1.75rem; color:#3B82F6; margin-bottom:0.625rem; display:block; }
+.info-card h3 { font-family:'Poppins',sans-serif; font-size:0.9rem; font-weight:700; color:#0F172A; margin-bottom:0.35rem; }
+.info-card p  { font-size:0.78rem; color:#64748B; line-height:1.6; }
+
+@media(max-width:768px) {
+  .agency-card { grid-template-columns:1fr; }
+  .agency-header { flex-direction:row; padding:1.25rem 1.5rem; justify-content:flex-start; gap:1rem; }
+  .agency-body { padding:1.25rem 1.5rem; }
+  .info-section { grid-template-columns:1fr; }
+  .page-content { padding:1rem; }
+}

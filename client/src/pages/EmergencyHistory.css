@@ -1,0 +1,39 @@
+/* ── Emergency History ── */
+.emergency-history-page { min-height:100vh; background:#F0F4FF; }
+.page-content { padding:2rem 0; }
+
+.loading-state { text-align:center; padding:4rem 2rem; color:#94A3B8; }
+.loading-state i { font-size:2.5rem; color:#457B9D; display:block; margin-bottom:1rem; }
+
+.empty-state { text-align:center; padding:4rem 2rem; }
+.empty-state i { font-size:4rem; color:#E2E8F0; display:block; margin-bottom:1rem; }
+.empty-state h2 { font-family:'Poppins',sans-serif; font-size:1.3rem; font-weight:700; color:#1D3557; margin-bottom:0.5rem; }
+.empty-state p  { font-size:0.9rem; color:#94A3B8; }
+
+.history-list { display:flex; flex-direction:column; gap:1rem; }
+
+.history-card { background:#fff; border-radius:20px; box-shadow:0 4px 16px rgba(0,0,0,0.06); border:1px solid #E8EEFF; overflow:hidden; transition:all 0.3s ease; }
+.history-card:hover { transform:translateY(-3px); box-shadow:0 12px 28px rgba(0,0,0,0.1); }
+
+.history-card-header { display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid #F0F4FF; }
+
+.history-type { display:flex; align-items:center; gap:1rem; }
+
+.type-icon { width:48px; height:48px; background:linear-gradient(135deg,#E63946,#C5303D); border-radius:14px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.2rem; box-shadow:0 4px 12px rgba(230,57,70,0.25); }
+
+.history-type h3 { font-family:'Poppins',sans-serif; font-size:0.95rem; font-weight:700; color:#1D3557; margin:0 0 3px; text-transform:uppercase; letter-spacing:0.5px; }
+.history-date { font-size:0.75rem; color:#94A3B8; margin:0; }
+
+.status-badge { padding:0.25rem 0.75rem; border-radius:999px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+
+.history-card-body { padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:0.4rem; }
+.history-card-body p { font-size:0.85rem; color:#64748B; margin:0; }
+.history-card-body strong { color:#1D3557; }
+
+@media (max-width:768px) { .history-card-header { flex-direction:column; align-items:flex-start; gap:0.75rem; } }
+@media (max-width:480px) {
+  .history-card-header { padding:1rem; }
+  .history-card-body   { padding:1rem; }
+  .type-icon { width:40px; height:40px; font-size:1rem; border-radius:10px; }
+  .history-type h3 { font-size:0.85rem; }
+}

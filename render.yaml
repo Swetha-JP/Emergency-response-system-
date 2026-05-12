@@ -1,0 +1,65 @@
+services:
+  # ── Backend API ──────────────────────────────────────────────
+  - type: web
+    name: safeguard-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        fromService:
+          name: safeguard-client
+          type: web
+          property: host
+      - key: DB_HOST
+        fromDatabase:
+          name: safeguard-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: safeguard-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: safeguard-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: safeguard-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: safeguard-db
+          property: password
+      - key: ALLOWED_ORIGINS
+        sync: false   # set manually in Render dashboard
+
+  # ── Frontend React App ───────────────────────────────────────
+  - type: web
+    name: safeguard-client
+    runtime: static
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: REACT_APP_API_URL
+        sync: false   # set manually — your backend URL + /api
+      - key: REACT_APP_SOCKET_URL
+        sync: false   # set manually — your backend URL
+
+databases:
+  - name: safeguard-db
+    databaseName: emergency_platform
+    user: safeguard_user
+    plan: free

@@ -1,0 +1,34 @@
+/* ── Agency History ── */
+.agency-history-page { min-height:100vh; background:#F0F4FF; }
+.page-content { padding:2rem; }
+
+.filter-bar { display:flex; gap:0.5rem; margin-bottom:1.5rem; background:#fff; padding:6px; border-radius:14px; border:1px solid #E8EEFF; width:fit-content; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+
+.filter-btn { padding:0.45rem 1.1rem; background:transparent; border:none; border-radius:10px; font-size:0.82rem; font-weight:600; color:#94A3B8; cursor:pointer; transition:all 0.2s; }
+.filter-btn:hover { color:#1D3557; background:#F0F4FF; }
+.filter-btn.active { background:linear-gradient(135deg,#457B9D,#2E5F7A); color:#fff; box-shadow:0 2px 8px rgba(69,123,157,0.3); }
+
+.history-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+
+.history-card { background:#fff; padding:1.25rem; border-radius:20px; box-shadow:0 4px 16px rgba(0,0,0,0.06); border:1px solid #E8EEFF; transition:all 0.3s ease; }
+.history-card:hover { transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,0.1); border-color:#BFDBFE; }
+
+.history-card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; }
+
+.status-badge { padding:0.2rem 0.7rem; border-radius:999px; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+.status-badge.pending   { background:#FEF9C3; color:#A16207; }
+.status-badge.accepted  { background:#DBEAFE; color:#1D4ED8; }
+.status-badge.resolved  { background:#DCFCE7; color:#16A34A; }
+.status-badge.cancelled { background:#F1F5F9; color:#64748B; }
+
+.date { font-size:0.75rem; color:#94A3B8; }
+
+.history-card h3 { font-family:'Poppins',sans-serif; font-size:0.95rem; font-weight:700; color:#1D3557; margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.5px; }
+.history-card p  { font-size:0.82rem; color:#64748B; margin-bottom:0.75rem; line-height:1.5; }
+
+.history-meta { display:flex; flex-direction:column; gap:0.3rem; }
+.history-meta span { font-size:0.75rem; color:#94A3B8; display:flex; align-items:center; gap:0.4rem; }
+.history-meta i { color:#457B9D; width:12px; }
+
+@media (max-width:1024px) { .history-grid { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:768px)  { .history-grid { grid-template-columns:1fr; } .page-content { padding:1rem; } }

@@ -1,0 +1,25 @@
+/* ── Agency Settings ── */
+.agency-settings-page { min-height:100vh; background:#F0F4FF; }
+.page-content { padding:2rem; display:flex; flex-direction:column; gap:1.25rem; }
+
+.settings-section { background:#fff; padding:1.75rem; border-radius:20px; box-shadow:0 4px 16px rgba(0,0,0,0.06); border:1px solid #E8EEFF; }
+.settings-section h3 { font-family:'Poppins',sans-serif; font-size:0.95rem; font-weight:700; color:#1D3557; margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:1px solid #F0F4FF; display:flex; align-items:center; gap:0.5rem; }
+.settings-section h3::before { content:''; width:4px; height:16px; background:linear-gradient(135deg,#E63946,#C5303D); border-radius:2px; display:inline-block; }
+
+.setting-item { display:flex; justify-content:space-between; align-items:center; padding:1rem 0; border-bottom:1px solid #F8FAFF; }
+.setting-item:last-child { border-bottom:none; padding-bottom:0; }
+.setting-item h4 { font-size:0.9rem; font-weight:600; color:#1D3557; margin:0 0 3px; }
+.setting-item p  { font-size:0.78rem; color:#94A3B8; margin:0; }
+
+/* Toggle switch */
+.toggle { position:relative; display:inline-block; width:48px; height:26px; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; }
+.slider { position:absolute; cursor:pointer; inset:0; background:#E2E8F0; border-radius:26px; transition:0.3s; }
+.slider:before { position:absolute; content:''; height:20px; width:20px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:0.3s; box-shadow:0 2px 4px rgba(0,0,0,0.15); }
+input:checked + .slider { background:linear-gradient(135deg,#06D6A0,#04A87E); }
+input:checked + .slider:before { transform:translateX(22px); }
+
+.language-select { width:100%; padding:0.7rem 0.9rem; border:1.5px solid #E2E8F0; border-radius:12px; font-size:0.9rem; color:#1A202C; background:#F8FAFF; cursor:pointer; outline:none; transition:all 0.2s; font-family:inherit; }
+.language-select:focus { border-color:#457B9D; box-shadow:0 0 0 4px rgba(69,123,157,0.1); }
+
+@media (max-width:768px) { .page-content { padding:1rem; } }
