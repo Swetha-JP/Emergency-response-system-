@@ -11,6 +11,9 @@ cd "$(dirname "$0")/../client"
 NODE_ENV=development npm install
 
 echo "=== Building React app ==="
+# Force production API URLs regardless of .env files
+REACT_APP_API_URL=https://safeguard-api-5cii.onrender.com/api \
+REACT_APP_SOCKET_URL=https://safeguard-api-5cii.onrender.com \
 NODE_ENV=production npm run build
 
 echo "=== Build complete ==="
