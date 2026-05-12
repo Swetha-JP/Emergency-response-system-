@@ -69,6 +69,21 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Emergency Platform API is running' });
 });
 
+// ── Serve React frontend in production ──────────────────────
+if (process.env.NODE_ENV === 'production') {
+  const clientBuild = path.join(__dirname, '../../client/build');
+  if (fs.existsSync(clientBuild)) {
+    app.use(express.static(clientBuild));
+    // All non-API routes → React app (handles client-side routing)
+    app.get('*', (req, res) => {
+      if (!req.path.startsWith('/api') && !req.path.startsWith('/uploads')) {
+        res.sendFile(path.join(clientBuild, 'index.html'));
+      }
+    });
+    console.log('Serving React frontend from:', clientBuild);
+  }
+}
+
 // Socket.IO for real-time communication
 const chatRooms = new Map();
 
