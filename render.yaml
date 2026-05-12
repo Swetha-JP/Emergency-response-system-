@@ -4,7 +4,7 @@ services:
     name: safeguard-api
     runtime: node
     rootDir: server
-    buildCommand: npm install && cd ../client && npm install && npm run build
+    buildCommand: cd /opt/render/project/src/client && npm install && npm run build && cd /opt/render/project/src/server && npm install
     startCommand: npm start
     envVars:
       - key: NODE_ENV
