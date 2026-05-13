@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -53,6 +54,7 @@ const LiveMap = ({ latitude, longitude, accuracy }) => {
 };
 
 const UserDashboard = () => {
+  const navigate = useNavigate();
   const [emergencyActive, setEmergencyActive] = useState(false);
   const [selectedType, setSelectedType] = useState('');
   const [description, setDescription] = useState('');
@@ -194,7 +196,7 @@ const UserDashboard = () => {
                 <div className="header-avatar">{user?.name?.[0]?.toUpperCase() || 'T'}</div>
                 <span className="header-username">{user?.name || 'Tourist'}</span>
               </div>
-              <button className="header-logout-btn" onClick={() => { localStorage.clear(); window.location.href = '/login'; }} title="Logout">
+              <button className="header-logout-btn" onClick={() => { localStorage.clear(); navigate('/login'); }} title="Logout">
                 <i className="fas fa-sign-out-alt"></i>
                 <span className="logout-text">Logout</span>
               </button>
@@ -423,7 +425,7 @@ const UserDashboard = () => {
                 { icon:'fa-map-marked-alt',  label:'Family Tracking',      href:`/track/${trackingLink ? trackingLink.split('/').pop() : ''}`, color:'#22C55E', bg:'#F0FDF4' },
                 { icon:'fa-file-medical',    label:'My Reports',           href:'/wildlife/my-reports', color:'#6366F1', bg:'#EEF2FF' },
               ].map((a, i) => (
-                <div key={i} className="action-card" onClick={() => window.location.href = a.href}>
+                <div key={i} className="action-card" onClick={() => navigate(a.href)}>
                   <div className="action-icon-wrap" style={{ background: a.bg, color: a.color }}>
                     <i className={`fas ${a.icon}`}></i>
                   </div>
@@ -439,7 +441,7 @@ const UserDashboard = () => {
             <div className="section-title-row">
               <div className="section-title-icon" style={{ background:'linear-gradient(135deg,#EF4444,#DC2626)' }}><i className="fas fa-ambulance"></i></div>
               <h2>Emergency Status</h2>
-              <button className="section-view-all" onClick={() => window.location.href = '/emergency-history'}>
+              <button className="section-view-all" onClick={() => navigate('/emergency-history')}>
                 View All <i className="fas fa-arrow-right"></i>
               </button>
             </div>
@@ -462,7 +464,7 @@ const UserDashboard = () => {
                   <div className="status-card-value">{location ? 'Active' : 'Inactive'}</div>
                 </div>
               </div>
-              <div className="status-card" onClick={() => window.location.href = '/emergency-history'} style={{ cursor:'pointer' }}>
+              <div className="status-card" onClick={() => navigate('/emergency-history')} style={{ cursor:'pointer' }}>
                 <div className="status-card-icon" style={{ background: 'linear-gradient(135deg,#F59E0B,#D97706)' }}>
                   <i className="fas fa-history"></i>
                 </div>
@@ -507,7 +509,7 @@ const UserDashboard = () => {
                 ))
               )}
               {emergencyHistory.length > 3 && (
-                <button className="history-preview-more" onClick={() => window.location.href = '/emergency-history'}>
+                <button className="history-preview-more" onClick={() => navigate('/emergency-history')}>
                   View {emergencyHistory.length - 3} more <i className="fas fa-arrow-right"></i>
                 </button>
               )}
@@ -519,12 +521,12 @@ const UserDashboard = () => {
             <div className="section-title-row">
               <div className="section-title-icon" style={{ background:'linear-gradient(135deg,#22C55E,#16A34A)' }}><i className="fas fa-paw"></i></div>
               <h2>Wildlife Status</h2>
-              <button className="section-view-all" onClick={() => window.location.href = '/wildlife/my-reports'}>
+              <button className="section-view-all" onClick={() => navigate('/wildlife/my-reports')}>
                 View All <i className="fas fa-arrow-right"></i>
               </button>
             </div>
             <div className="status-cards-grid">
-              <div className="status-card" onClick={() => window.location.href = '/wildlife/my-reports'} style={{ cursor:'pointer' }}>
+              <div className="status-card" onClick={() => navigate('/wildlife/my-reports')} style={{ cursor:'pointer' }}>
                 <div className="status-card-icon" style={{ background:'linear-gradient(135deg,#8B5CF6,#7C3AED)' }}>
                   <i className="fas fa-clipboard-list"></i>
                 </div>
@@ -533,7 +535,7 @@ const UserDashboard = () => {
                   <div className="status-card-value">View</div>
                 </div>
               </div>
-              <div className="status-card" onClick={() => window.location.href = '/wildlife/report'} style={{ cursor:'pointer' }}>
+              <div className="status-card" onClick={() => navigate('/wildlife/report')} style={{ cursor:'pointer' }}>
                 <div className="status-card-icon" style={{ background:'linear-gradient(135deg,#22C55E,#16A34A)' }}>
                   <i className="fas fa-plus-circle"></i>
                 </div>
@@ -562,10 +564,10 @@ const UserDashboard = () => {
               </div>
             </div>
             <div className="wildlife-quick-links">
-              <button className="wql-btn" onClick={() => window.location.href = '/wildlife/report'}>
+              <button className="wql-btn" onClick={() => navigate('/wildlife/report')}>
                 <i className="fas fa-camera"></i> Report Sighting
               </button>
-              <button className="wql-btn wql-btn-outline" onClick={() => window.location.href = '/wildlife/my-reports'}>
+              <button className="wql-btn wql-btn-outline" onClick={() => navigate('/wildlife/my-reports')}>
                 <i className="fas fa-list"></i> My Submissions
               </button>
             </div>
