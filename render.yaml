@@ -1,5 +1,5 @@
 services:
-  # ── Backend API + Frontend (served together) ─────────────────
+  # ── Full-stack: Express serves React + API + Socket.IO ───────
   - type: web
     name: safeguard-api
     runtime: node
@@ -14,39 +14,8 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: DATABASE_URL
-        sync: false
+        sync: false   # Set manually in Render dashboard from Neon
       - key: CLIENT_URL
         value: https://safeguard-api-5cii.onrender.com
       - key: ALLOWED_ORIGINS
         value: https://safeguard-api-5cii.onrender.com
-      - key: REACT_APP_API_URL
-        value: https://safeguard-api-5cii.onrender.com/api
-      - key: REACT_APP_SOCKET_URL
-        value: https://safeguard-api-5cii.onrender.com
-
-  # ── Frontend React App ───────────────────────────────────────
-  - type: web
-    name: safeguard-client
-    runtime: static
-    rootDir: client
-    buildCommand: npm install && npm run build
-    staticPublishPath: build
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    headers:
-      - path: /*
-        name: Cache-Control
-        value: no-cache
-    envVars:
-      - key: REACT_APP_API_URL
-        sync: false
-      - key: REACT_APP_SOCKET_URL
-        sync: false
-
-databases:
-  - name: safeguard-db
-    databaseName: emergency_platform
-    user: safeguard_user
-    plan: free

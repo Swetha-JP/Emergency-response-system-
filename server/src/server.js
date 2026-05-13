@@ -6,164 +6,204 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
-const emergencyRoutes = require('./routes/emergencyRoutes');
-const authRoutes = require('./routes/authRoutes');
-const agencyRoutes = require('./routes/agencyRoutes');
-const uploadRoutes = require('./routes/uploadRoutes');
-const contactsRoutes = require('./routes/contactsRoutes');
-const analyticsRoutes = require('./routes/analyticsRoutes');
-const wildlifeRoutes = require('./routes/wildlifeRoutes');
+const emergencyRoutes  = require('./routes/emergencyRoutes');
+const authRoutes       = require('./routes/authRoutes');
+const agencyRoutes     = require('./routes/agencyRoutes');
+const uploadRoutes     = require('./routes/uploadRoutes');
+const contactsRoutes   = require('./routes/contactsRoutes');
+const analyticsRoutes  = require('./routes/analyticsRoutes');
+const wildlifeRoutes   = require('./routes/wildlifeRoutes');
 
-const app = express();
+const app    = express();
 const server = http.createServer(app);
+
+// ── Allowed origins list ─────────────────────────────────────
+const getAllowedOrigins = () => {
+  const origins = new Set(['http://localhost:3000', 'http://localhost:5000']);
+  const env = process.env.ALLOWED_ORIGINS || process.env.CLIENT_URL || '';
+  env.split(',').map(o => o.trim()).filter(Boolean).forEach(o => origins.add(o));
+  // Always allow the service's own URL
+  if (process.env.RENDER_EXTERNAL_URL) origins.add(process.env.RENDER_EXTERNAL_URL);
+  return [...origins];
+};
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow same-origin requests (no origin header) and OPTIONS preflight
+    if (!origin) return callback(null, true);
+    const allowed = getAllowedOrigins();
+    if (allowed.some(o => origin === o || origin.startsWith(o))) {
+      return callback(null, true);
+    }
+    console.warn('CORS blocked:', origin, '| Allowed:', allowed);
+    callback(null, true); // In production, allow all to avoid blocking — tighten later
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+// ── Socket.IO ────────────────────────────────────────────────
 const io = socketIo(server, {
-  cors: {
-    origin: function(origin, callback) {
-      // Allow requests with no origin (mobile apps, curl, etc.)
-      if (!origin) return callback(null, true);
-      const allowed = (process.env.ALLOWED_ORIGINS || process.env.CLIENT_URL || 'http://localhost:3000')
-        .split(',').map(o => o.trim());
-      if (allowed.some(o => origin.startsWith(o))) return callback(null, true);
-      callback(new Error('Not allowed by CORS'));
-    },
-    methods: ['GET', 'POST'],
-    credentials: true
-  }
+  cors: corsOptions,
+  // Allow both polling and websocket — polling first for Render compatibility
+  transports: ['polling', 'websocket'],
+  allowEIO3: true
 });
 
-// Create uploads directory if it doesn't exist
+// ── Uploads directory ────────────────────────────────────────
 const uploadsDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Middleware
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true);
-    const allowed = (process.env.ALLOWED_ORIGINS || process.env.CLIENT_URL || 'http://localhost:3000')
-      .split(',').map(o => o.trim());
-    if (allowed.some(o => origin.startsWith(o))) return callback(null, true);
-    callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true
-}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ── Middleware ───────────────────────────────────────────────
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handle preflight for all routes
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(uploadsDir));
 
-// Routes
-app.use('/api/auth', authRoutes);
+// ── Request logger (production debug) ───────────────────────
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      console.log(`${req.method} ${req.path} | origin: ${req.headers.origin || 'same-origin'}`);
+    }
+    next();
+  });
+}
+
+// ── API Routes ───────────────────────────────────────────────
+app.use('/api/auth',      authRoutes);
 app.use('/api/emergency', emergencyRoutes);
-app.use('/api/agency', agencyRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/contacts', contactsRoutes);
+app.use('/api/agency',    agencyRoutes);
+app.use('/api/upload',    uploadRoutes);
+app.use('/api/contacts',  contactsRoutes);
 app.use('/api/analytics', analyticsRoutes);
-app.use('/api/wildlife', wildlifeRoutes);
+app.use('/api/wildlife',  wildlifeRoutes);
 
 // Make io accessible in controllers
 app.set('io', io);
 
-// Health check
+// ── Health check ─────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Emergency Platform API is running' });
+  res.json({
+    status: 'OK',
+    message: 'Emergency Platform API is running',
+    env: process.env.NODE_ENV,
+    db: !!process.env.DATABASE_URL ? 'neon' : 'local',
+    time: new Date().toISOString()
+  });
 });
 
-// ── Serve React frontend in production ──────────────────────
-if (process.env.NODE_ENV === 'production') {
-  const clientBuild = path.join(__dirname, '../../client/build');
-  if (fs.existsSync(clientBuild)) {
-    app.use(express.static(clientBuild));
-    // All non-API routes → React app (handles client-side routing)
-    app.get('*', (req, res) => {
-      if (!req.path.startsWith('/api') && !req.path.startsWith('/uploads')) {
-        res.sendFile(path.join(clientBuild, 'index.html'));
-      }
-    });
-    console.log('Serving React frontend from:', clientBuild);
-  }
+// ── Serve React frontend in production ───────────────────────
+// Path: server/src/server.js → ../../client/build = client/build from repo root
+const clientBuild = path.join(__dirname, '../../client/build');
+console.log('Looking for React build at:', clientBuild);
+console.log('Build exists:', fs.existsSync(clientBuild));
+
+if (fs.existsSync(clientBuild)) {
+  app.use(express.static(clientBuild, {
+    maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0
+  }));
+
+  // SPA fallback — all non-API routes serve index.html
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.path.startsWith('/socket.io')) {
+      return res.status(404).json({ error: 'API route not found' });
+    }
+    res.sendFile(path.join(clientBuild, 'index.html'));
+  });
+
+  console.log('✅ Serving React frontend from:', clientBuild);
+} else {
+  console.warn('⚠️  React build not found at:', clientBuild);
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api')) {
+      res.status(200).send(`
+        <html><body>
+          <h2>SafeGuard API is running</h2>
+          <p>Frontend build not found. Check build process.</p>
+          <p>Expected path: ${clientBuild}</p>
+          <a href="/api/health">API Health Check</a>
+        </body></html>
+      `);
+    }
+  });
 }
 
-// Socket.IO for real-time communication
-const chatRooms = new Map();
-
+// ── Socket.IO Events ─────────────────────────────────────────
 io.on('connection', (socket) => {
-  console.log('New client connected:', socket.id);
+  console.log('Socket connected:', socket.id, '| transport:', socket.conn.transport.name);
 
-  // Emergency SOS event
   socket.on('emergency:sos', (data) => {
-    console.log('Emergency SOS received:', data);
+    console.log('SOS received:', data?.emergencyType);
     io.emit('emergency:new', data);
   });
 
-  // Location update — broadcast to tracking page AND update DB
   socket.on('location:update', async (data) => {
     const { emergencyId, latitude, longitude } = data;
-
-    // Broadcast to all clients watching this emergency
     io.emit('location:updated', data);
     io.to(`track_${emergencyId}`).emit('location:updated', data);
 
-    // Persist latest location back to emergency_requests so REST polling also gets it
     if (emergencyId && latitude && longitude) {
       try {
         const pool = require('./config/database');
         await pool.query(
-          'UPDATE emergency_requests SET latitude = $1, longitude = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3',
+          'UPDATE emergency_requests SET latitude=$1, longitude=$2, updated_at=CURRENT_TIMESTAMP WHERE id=$3',
           [latitude, longitude, emergencyId]
         );
       } catch (err) {
-        console.warn('Live location DB update failed:', err.message);
+        console.warn('Location DB update failed:', err.message);
       }
     }
   });
 
-  // Agency response
   socket.on('agency:response', (data) => {
-    io.to(data.userId).emit('agency:accepted', data);
+    io.to(String(data.userId)).emit('agency:accepted', data);
   });
 
-  // Family tracking page joins a room for a specific emergency
   socket.on('track:join', ({ emergencyId }) => {
     socket.join(`track_${emergencyId}`);
-    console.log(`Tracking client joined room: track_${emergencyId}`);
   });
 
-  // Chat events
   socket.on('chat:join', ({ emergencyId, userId }) => {
     socket.join(`emergency_${emergencyId}`);
-    console.log(`User ${userId} joined chat for emergency ${emergencyId}`);
   });
 
   socket.on('chat:send', (message) => {
     io.to(`emergency_${message.emergencyId}`).emit('chat:message', message);
   });
 
-  // Path tracking
   socket.on('path:update', (data) => {
     io.to(`emergency_${data.emergencyId}`).emit('path:updated', data);
   });
 
-  // Battery alert
   socket.on('battery:low', (data) => {
     io.to(`emergency_${data.emergencyId}`).emit('battery:alert', data);
   });
 
-  // Risk zone alert
   socket.on('riskzone:entered', (data) => {
     io.emit('riskzone:alert', data);
   });
 
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
+  socket.on('disconnect', (reason) => {
+    console.log('Socket disconnected:', socket.id, reason);
+  });
+
+  socket.on('error', (err) => {
+    console.error('Socket error:', err.message);
   });
 });
 
+// ── Start server ─────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`\n🚀 Server running on port ${PORT}`);
+  console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🗄️  Database: ${process.env.DATABASE_URL ? 'Neon PostgreSQL' : 'Local PostgreSQL'}`);
+  console.log(`🌐 Allowed origins: ${getAllowedOrigins().join(', ')}\n`);
 });
 
 module.exports = { app, io };

@@ -8,19 +8,29 @@ class SocketService {
   }
 
   connect() {
+    if (this.socket?.connected) return this.socket;
+
     this.socket = io(SOCKET_URL, {
-      transports: ['websocket'],
+      // Start with polling, upgrade to websocket — more reliable on Render free tier
+      transports: ['polling', 'websocket'],
       reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 20000,
+      withCredentials: true
     });
 
     this.socket.on('connect', () => {
-      console.log('Socket connected:', this.socket.id);
+      console.log('✅ Socket connected:', this.socket.id, '| transport:', this.socket.io.engine.transport.name);
     });
 
-    this.socket.on('disconnect', () => {
-      console.log('Socket disconnected');
+    this.socket.on('connect_error', (err) => {
+      console.warn('Socket connect error:', err.message);
+    });
+
+    this.socket.on('disconnect', (reason) => {
+      console.log('Socket disconnected:', reason);
     });
 
     return this.socket;
@@ -29,64 +39,51 @@ class SocketService {
   disconnect() {
     if (this.socket) {
       this.socket.disconnect();
+      this.socket = null;
     }
   }
 
-  // Emit emergency SOS
   emitSOS(data) {
-    if (this.socket) {
-      this.socket.emit('emergency:sos', data);
-    }
+    if (this.socket?.connected) this.socket.emit('emergency:sos', data);
   }
 
-  // Listen for new emergencies (for agencies)
   onNewEmergency(callback) {
     if (this.socket) {
+      this.socket.off('emergency:new');
       this.socket.on('emergency:new', callback);
     }
   }
 
-  // Emit location update
   emitLocationUpdate(data) {
-    if (this.socket) {
-      this.socket.emit('location:update', data);
-    }
+    if (this.socket?.connected) this.socket.emit('location:update', data);
   }
 
-  // Listen for location updates
   onLocationUpdate(callback) {
     if (this.socket) {
-      this.socket.off('location:updated'); // prevent duplicate listeners
+      this.socket.off('location:updated');
       this.socket.on('location:updated', callback);
     }
   }
 
-  // Join a tracking room for a specific emergency (used by family tracking page)
   joinTrackingRoom(emergencyId) {
-    if (this.socket) {
+    if (this.socket?.connected) {
       this.socket.emit('track:join', { emergencyId });
     }
   }
 
-  // Emit agency response
   emitAgencyResponse(data) {
-    if (this.socket) {
-      this.socket.emit('agency:response', data);
-    }
+    if (this.socket?.connected) this.socket.emit('agency:response', data);
   }
 
-  // Listen for agency acceptance
   onAgencyAccepted(callback) {
     if (this.socket) {
+      this.socket.off('agency:accepted');
       this.socket.on('agency:accepted', callback);
     }
   }
 
-  // Remove all listeners
   removeAllListeners() {
-    if (this.socket) {
-      this.socket.removeAllListeners();
-    }
+    if (this.socket) this.socket.removeAllListeners();
   }
 }
 
