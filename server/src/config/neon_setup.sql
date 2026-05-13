@@ -122,11 +122,12 @@ CREATE TABLE IF NOT EXISTS wildlife_reports (
 );
 
 -- ── Seed admin user (password: admin123) ──────────────────────
+-- Hash generated with bcrypt saltRounds=10 for 'admin123'
 INSERT INTO users (name, email, phone, password_hash, user_type)
 VALUES (
   'Admin',
   'admin@safeguard.com',
   '9999999999',
-  '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+  '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lihO',
   'admin'
 ) ON CONFLICT (email) DO NOTHING;
