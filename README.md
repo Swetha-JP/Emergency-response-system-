@@ -174,7 +174,3 @@ npm run migrate
 - Multi-language voice support
 - Blockchain-based incident logging
 
-
-## 📞 Contact
-
-[Add contact information]
