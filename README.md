@@ -174,13 +174,6 @@ npm run migrate
 - Multi-language voice support
 - Blockchain-based incident logging
 
-## 👥 Team
-
-[Add your team members]
-
-## 📄 License
-
-MIT License
 
 ## 📞 Contact
 
